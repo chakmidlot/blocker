@@ -1,6 +1,6 @@
 $fn = 100;
 
-secret = [2, 3, 1, 2];
+secret = [1, 3, 2, 4];
 
 module base() {
     
@@ -199,9 +199,9 @@ module key() {
 
 module pins() {
     for (i = [0: len(secret) - 1]) {
-        translate([-6.8, 0, i * 6 - 18])
+        translate([-6.8, 0, - i * 6])
         rotate([0, 90, 0])
-        pin(secret[i]);
+        pin(4 - secret[i]);
     }
 }
 
