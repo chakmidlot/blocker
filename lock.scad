@@ -2,15 +2,21 @@ $fn = 100;
 
 secret = [1, 3, 2, 4];
 
-module base() {
+module base(y) {
     
     difference() {
         union() {
             cylinder(30, 12, 12);
             
-            translate([0, 0, 28])
-            cylinder(2, 12, 13);
+            translate([0, 0, 26])
+            cylinder(4, 12, 12.5);
         }
+        
+        translate([0, 0, 27])
+        cylinder(2, 11, 11);
+        
+        translate([0, 0, 29])
+        cylinder(0.2, 11, 10);
         
         translate([0, 0, -1])
         cylinder(32, 10.1, 10.1);
@@ -21,44 +27,52 @@ module base() {
             cylinder(10, 2.2, 2.2);
         }
         
-        translate([0, -2.6, 24])
-        cube([20, 20, 10]);
+        translate([0, -2.6, 5])
+        rotate_extrude(angle=70)
+        polygon([[0, 0], [0, 30], [20, 30], [20, 0]]);
         
     }
     
     difference() {
-        translate([-5, 12.5, 0])
-        cube([47.9, 62.9, 4], true);
+        translate([-2.5, y / 2 - 15, 0])
+        cube([39, y, 2], true);
         
         translate([0, 0, -3])
-        cylinder(6, 9, 9);
-        
-        cylinder(6, 10.1, 10.1);
+        cylinder(6, 9, 9);        
     }
     
-    translate([-14, 30, 0])
+    translate([-14, 20.5, 0])
     difference() {
         translate([-2, -2, 0])
-        cube([9, 10, 28]);
+        cube([9, 10, 26]);
         
-        translate([0, -30, -1])
+        translate([0, -20, -1])
         linear_extrude(32)
         offset(0.1)
         projection()
         springs();
     }
     
-    translate([13.9, 38.9, 0])
-    cube([4, 4, 10]);
+    //box hooks
     
-    translate([-27.9, -17.9, 0])
-    cube([4, 4, 10]);
+    translate([-8, 30.5, 14])
+    rotate([180, 90, 0])
+    linear_extrude(4)
+    polygon([[0, 0], [0, 2], [3, 2], [1, 0]]);
     
-    translate([-27.9, 38.9, 0])
-    cube([4, 4, 10]);
+    translate([-4, -15, 14])
+    rotate([0, 90, 0])
+    linear_extrude(4)
+    polygon([[0, 0], [0, 4], [5, 4], [1, 0]]);
     
-    translate([13.9, -17.9, 0])
-    cube([4, 4, 10]);
+    // enforcers
+    rotate([0, 0, 23])
+    translate([-1, 11, 0])
+    cube([2, 11, 26]);
+    
+    rotate([0, 0, 220])
+    translate([-1, 11, 0])
+    cube([2, 4, 26]);
 }
 
 module springs() {
@@ -67,53 +81,39 @@ module springs() {
         spring();
     }
     
-    translate([0, 30, -2])
+    translate([0, 20, -2])
     cube([2, 5, 22]);
     
-    translate([0, 32, -2])
+    translate([0, 22, -2])
     cube([5, 2, 22]);
 }
 
 module spring() {
     translate([0, 0, -2])
-    cube([2, 30, 4]);
+    cube([1, 20, 4]);
     rotate([0, 90, 0])
     spring_pin();
 }
 
 module spring_pin() {
-    cylinder(7, 1.5, 1.5);
+    cylinder(7, 1.9, 1.9);
     cylinder(2, 2, 2);
     
     translate([0, 0, 7])
-    cylinder(0.5, 1.5, 0.5);
+    cylinder(0.5, 1.9, 0.5);
 }
 
 module stop_ring() {
-    rotate([0, 0, -10])
-    difference() {
-        cylinder(5, 16, 16);
-        
-        translate([0, 0, -0.01])
-        cylinder(3, 12.1, 12.1);
-        
-        translate([0, 0, 1.01])
-        cylinder(2, 12.1, 13.1);
-        
-        
-        translate([0, 0, -1])
-        cylinder(7, 8, 8);
-        
-        translate([-5, -5, -1])
-        cube([25, 25, 7]);
-    }
+    translate([0, 0, 27])
+    rotate_extrude(angle=300)
+    polygon([[7, 0], [7, 2], [11.5, 2], [11.5, 0]]);
 }
 
 
 module plug() {
     difference() {
-        cylinder(30, 10, 10);
-        
+        cylinder(25.8, 10, 10);
+                
         translate([2, -1, -1])
         cube([4, 4, 32]);
         
@@ -121,15 +121,18 @@ module plug() {
         cube([9, 2, 32]);
         
         for (i = [0: 3]) {
-            translate([0, 0, 5 + i * 6])
+            translate([0, 0, 4 + i * 6])
             rotate([0, -90, 0])
             cylinder(10, 2.2, 2.2);
         }    
     }
     
     rotate([0, 0, -90])
-    translate([0, 12, 28])
-    cube([5, 8, 4], true);
+    translate([0, 14, 7])
+    cube([5, 10, 4], true);
+    
+    translate([21, 0, 4.5])
+    cube([4, 5, 9], true);
 }
 
 function blade(v, x) = 
@@ -279,5 +282,31 @@ module preview() {
     }
 }
 
-rotate([0, 180, 0])
-preview();
+module assembled_lock(y) {    
+    translate([10, 15, 11])
+    rotate([0, 180, 0])
+    {
+        base(y);   
+        
+        translate([0, 0, 1])
+        rotate([0, 0, 0])
+        plug();
+        
+        stop_ring();
+        
+        translate([-3, 0, 23])
+        pins();
+    }
+    
+    translate([24, 15, 6])
+    rotate([0, 180, 0])
+    springs();
+    
+}
+
+difference() {
+    assembled_lock(70);
+    
+    translate([10, -10, -20])
+    cube([30, 25, 40]);
+}
